@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useApp } from '../../context/AppContext'
 import { Brain, Zap, ArrowRight, Clock, Play, Square } from 'lucide-react'
-import { API_URL } from '../utils/api'
+import { API_URL } from '../../utils/api'
 
 export default function TraderDecision({ isMobile = false }) {
   const { state } = useApp()

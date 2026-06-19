@@ -1,4 +1,3 @@
-// src/components/RealTrading.jsx
 import React, { useState, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
 import { API_URL } from '../utils/api'
