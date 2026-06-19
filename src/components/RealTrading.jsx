@@ -9,6 +9,7 @@ const DEFAULT_RISK_LIMITS = {
   maxDailyTrades: 10
 }
 
+
 export default function RealTrading({ isMobile = false }) {
   const { state } = useApp()
   const [balance, setBalance] = useState(null)
@@ -19,6 +20,8 @@ export default function RealTrading({ isMobile = false }) {
   const [tradeResult, setTradeResult] = useState(null)
   const [riskLimits, setRiskLimits] = useState(DEFAULT_RISK_LIMITS)
   
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
   // Manual trading states
   const [manualDecision, setManualDecision] = useState('BUY')
   const [manualAmount, setManualAmount] = useState('0.001')
@@ -28,8 +31,8 @@ export default function RealTrading({ isMobile = false }) {
   const fetchData = async () => {
     try {
       const [balanceRes, statusRes] = await Promise.all([
-        fetch('http://localhost:5000/api/balance'),
-        fetch('http://localhost:5000/api/status')
+        fetch(`${API_URL}/api/balance`),
+        fetch(`${API_URL}/api/status`)
       ])
       
       const balanceData = await balanceRes.json()
@@ -53,7 +56,7 @@ export default function RealTrading({ isMobile = false }) {
     if (window.confirm('⚠️ Reset all trades and positions? This cannot be undone!')) {
       setLoading(true)
       try {
-        const response = await fetch('http://localhost:5000/api/reset', {
+        const response = await fetch(`${API_URL}/api/reset`, {
           method: 'POST'
         })
         const result = await response.json()
@@ -91,7 +94,7 @@ export default function RealTrading({ isMobile = false }) {
     setManualResult(null)
     
     try {
-      const response = await fetch('http://localhost:5000/api/trade', {
+      const response = await fetch(`${API_URL}/api/trade`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -128,7 +131,7 @@ export default function RealTrading({ isMobile = false }) {
     setTradeResult(null)
 
     try {
-      const response = await fetch('http://localhost:5000/api/trade', {
+      const response = await fetch(`${API_URL}/api/trade`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

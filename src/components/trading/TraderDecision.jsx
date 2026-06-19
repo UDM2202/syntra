@@ -11,11 +11,13 @@ export default function TraderDecision({ isMobile = false }) {
   const [realTrade, setRealTrade] = useState(null)
   const trade = state.currentTrade
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
   // Check auto-trade status
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/status')
+        const response = await fetch(`${API_URL}/api/status`)
         const data = await response.json()
         if (data.success) {
           setIsAutoTrading(data.isAutoTrading || false)
@@ -35,7 +37,7 @@ export default function TraderDecision({ isMobile = false }) {
 
   const startAutoTrade = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/start-auto-trade', {
+      const response = await fetch(`${API_URL}/api/start-auto-trade`, {
         method: 'POST'
       })
       const result = await response.json()
@@ -53,7 +55,7 @@ export default function TraderDecision({ isMobile = false }) {
 
   const stopAutoTrade = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/stop-auto-trade', {
+      const response = await fetch(`${API_URL}/api/stop-auto-trade`, {
         method: 'POST'
       })
       const result = await response.json()

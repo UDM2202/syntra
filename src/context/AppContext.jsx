@@ -146,6 +146,8 @@ export function AppProvider({ children }) {
       return
     }
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
     const interval = setInterval(async () => {
       if (shouldUpdateSignals(state.lastUpdate)) {
         const signals = await generateSignals()
@@ -164,7 +166,7 @@ export function AppProvider({ children }) {
 
     const fetchTradeStatus = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/status')
+        const response = await fetch(`${API_URL}/api/status`)
         const data = await response.json()
         if (data.success && data.trades && data.trades.length > 0) {
           const latestTrade = data.trades[0]

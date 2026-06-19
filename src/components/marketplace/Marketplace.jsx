@@ -5,17 +5,42 @@ import { ShoppingCart, Star, Shield } from 'lucide-react'
 export default function Marketplace({ isMobile = false, isTablet = false }) {
   const { state, dispatch } = useApp()
   const [purchasing, setPurchasing] = useState(null)
+  const [purchaseError, setPurchaseError] = useState(null)
+  
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
-  const handlePurchase = (agentType, price) => {
+  const handlePurchase = async (agentType, price) => {
     setPurchasing(agentType)
+    setPurchaseError(null)
     
-    setTimeout(() => {
-      dispatch({
-        type: 'PURCHASE_SIGNAL',
-        payload: { agent: agentType, price }
+    try {
+      // Real purchase via backend
+      const response = await fetch(`${API_URL}/api/purchase-signal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          agent: agentType, 
+          price: price 
+        })
       })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        dispatch({
+          type: 'PURCHASE_SIGNAL',
+          payload: { agent: agentType, price }
+        })
+        console.log(`✅ ${agentType} signal purchased: ${result.txHash}`)
+      } else {
+        setPurchaseError(result.error || 'Purchase failed')
+      }
+    } catch (error) {
+      console.error('Purchase error:', error)
+      setPurchaseError(error.message || 'Failed to purchase signal')
+    } finally {
       setPurchasing(null)
-    }, 1000)
+    }
   }
 
   const getAgentData = (type) => {
@@ -260,15 +285,29 @@ export default function Marketplace({ isMobile = false, isTablet = false }) {
                       borderRadius: '50%',
                       animation: 'spin 0.8s linear infinite'
                     }} />
-                    Processing...
+                    Processing on BSC...
                   </>
                 ) : (
                   <>
                     <ShoppingCart size={18} />
-                    Purchase Signal
+                    Purchase Signal (BSC)
                   </>
                 )}
               </button>
+
+              {purchaseError && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  background: 'rgba(255,107,107,0.1)',
+                  border: '1px solid rgba(255,107,107,0.15)',
+                  fontSize: '11px',
+                  color: '#FF6B6B'
+                }}>
+                  ❌ {purchaseError}
+                </div>
+              )}
 
               {isPurchased && (
                 <div style={{
