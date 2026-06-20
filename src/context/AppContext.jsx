@@ -1,3 +1,4 @@
+// src/context/AppContext.jsx
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react'
 import { 
   initializeState, 
@@ -43,19 +44,18 @@ const initialState = loadState()
 function appReducer(state, action) {
   let newState
   switch (action.type) {
- case 'SET_WALLET':
-  return { 
-    ...state, 
-    walletConnected: action.payload.connected,
-    walletAddress: action.payload.address 
-  }
+    case 'SET_WALLET':
+      return { 
+        ...state, 
+        walletConnected: action.payload.connected,
+        walletAddress: action.payload.address 
+      }
 
-  case 'UPDATE_TRADE':
-  return { 
-    ...state, 
-    currentTrade: action.payload.currentTrade 
-  }
-  
+    case 'UPDATE_TRADE':
+      return { 
+        ...state, 
+        currentTrade: action.payload.currentTrade 
+      }
 
     case 'UPDATE_SIGNALS':
       const newSignals = action.payload
@@ -87,7 +87,6 @@ function appReducer(state, action) {
       newState = { ...state, loading: action.payload }
       break
 
-
     case 'CLEAR_HISTORY':
       newState = {
         ...initializeState(),
@@ -99,7 +98,6 @@ function appReducer(state, action) {
         walletAddress: state.walletAddress
       }
       break
-     
 
     default:
       newState = state
@@ -154,8 +152,6 @@ export function AppProvider({ children }) {
       console.log('⏸️ Waiting for wallet connection...')
       return
     }
-
-const API_URL = import.meta.env.VITE_API_URL || '${API_URL}'
 
     const interval = setInterval(async () => {
       if (shouldUpdateSignals(state.lastUpdate)) {

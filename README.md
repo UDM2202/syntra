@@ -23,7 +23,8 @@
 - [Security](#-security)
 - [Contributing](#-contributing)
 - [License](#-license)
-- [Acknowledgments](#-acknowledgments)
+- [Update Log](#-update-log)
+- [Known Issues](#-known-issues)
 
 ---
 
@@ -40,6 +41,7 @@
 - 🛡️ **Reputation System** - Trust scores update based on trade outcomes
 - 🌐 **Multi-Wallet Support** - Connect MetaMask, Trust Wallet, Coinbase Wallet, and more
 - 📱 **Responsive UI** - Works on desktop, tablet, and mobile
+- 🔐 **Self-Custody** - Users control their own private keys and funds
 
 ---
 
@@ -442,6 +444,201 @@ Keep minimal funds for gas fees
 Withdraw profits regularly
 
 Monitor transactions on BSCScan
+
+📝 Update Log
+Wallet Connectivity Fixes (June 2026)
+Fixed Trust Wallet Connection Issues
+Removed conflicts caused by multiple injected wallet providers
+
+Ensured Trust Wallet becomes the active EIP-1193 provider
+
+Added proper wallet connection state synchronization between RainbowKit, Wagmi, and AppContext
+
+Fixed repeated "wallet must has at least one account" errors
+
+Fixed transaction signing requests not appearing in Trust Wallet
+
+RainbowKit Custom Connect Button
+Replaced default RainbowKit ConnectButton UI with a custom implementation
+
+Removed automatic balance rendering from RainbowKit
+
+Eliminated NaN BNB display issue
+
+Added clean wallet address formatting (0x1234...abcd)
+
+Added custom wallet status indicators
+
+Added unsupported network detection
+
+Trade Execution Fixes
+Backend Trade Recording
+Fixed backend status endpoint issues
+
+Corrected trade persistence logic
+
+Fixed transaction hash recording
+
+Added backend trade count tracking
+
+Real Transaction Detection
+Added validation for real BSC transaction hashes
+
+Detects transactions using:
+
+Starts with 0x
+
+Length = 66 characters
+
+Added BSCScan transaction links
+
+Added real transaction indicators throughout UI
+
+Execution Result Improvements
+Displays:
+
+Transaction status
+
+Profit/Loss
+
+Conviction score
+
+Transaction hash
+
+Execution time
+
+Backend recorded trade count
+
+Added BSC execution badges
+
+Added real trade visual indicators
+
+Statistics System Improvements
+Balance Handling
+Fixed NaN balance calculations
+
+Added safe numeric validation
+
+Added fallback values for failed API responses
+
+Prevented crashes caused by invalid balance responses
+
+Trade Statistics
+Added:
+
+Total Trades
+
+Win Rate
+
+Total P&L
+
+Synced frontend statistics with backend status endpoint
+
+Added automatic refresh intervals
+
+Wallet State Synchronization
+Wallet address is now synchronized across:
+
+RainbowKit
+
+Wagmi
+
+AppContext
+
+Backend API calls
+
+AppContext Improvements
+Backend Trade Sync
+Added automatic polling of backend trade status
+
+Synchronizes latest executed trades
+
+Updates:
+
+Trade history
+
+Current trade
+
+Win count
+
+Trade count
+
+Profit/Loss data
+
+Wallet Event Handling
+Added:
+
+wallet-connected event support
+
+wallet-disconnected event support
+
+Automatic state updates on connect/disconnect
+
+Trading Engine Improvements
+AI Signal Generation
+Signals now only run when wallet is connected
+
+Prevents unnecessary processing when disconnected
+
+Trade Monitoring
+Backend continuously tracks:
+
+Pending trades
+
+Open positions
+
+Trade execution results
+
+Improved transaction monitoring
+
+User Experience Improvements
+Wallet UI
+Cleaner wallet display
+
+Removed duplicated wallet information
+
+Added connected state indicators
+
+Execution UI
+Clear distinction between:
+
+Pending
+
+Executed
+
+Win
+
+Loss
+
+Added transaction visibility
+
+Error Handling
+Improved transaction rejection handling
+
+Better wallet connection error messages
+
+Added safe fallbacks for API failures
+
+🐛 Known Issues
+Fixed Issues (June 2026)
+Trust Wallet extension conflict - Fixed issue where wallet was connected but window.ethereum.selectedAddress returned undefined. Root cause: multiple wallet providers competing for injection. Resolution: disable unused wallet extensions and use custom RainbowKit wallet connection flow.
+
+NaN Balance Display - Fixed NaN appearing before wallet address when connecting. Added safe numeric validation with fallback to '0.0000'.
+
+Trade Recording - Fixed trades not being recorded in backend. Added /api/record-trade endpoint and frontend sync.
+
+Transaction Rejection Errors - Fixed "Transaction rejected in wallet" appearing without wallet popup. Proper wallet connection state synchronization.
+
+Remaining Issues
+Trade statistics depend on backend status endpoint consistency
+
+Open position management is still basic
+
+No automated sell logic yet
+
+P&L tracking currently relies on completed trade records
+
+Position lifecycle tracking can be improved
 
 🤝 Contributing
 How to Contribute

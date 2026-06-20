@@ -36,21 +36,30 @@ export default function Settings({ isMobile = false }) {
   }, [])
 
   const handleSave = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/settings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings)
-      })
-      const data = await response.json()
-      if (data.success) {
-        setSaved(true)
-        setTimeout(() => setSaved(false), 3000)
-      }
-    } catch (error) {
-      console.error('Failed to save settings:', error)
+  try {
+    console.log('Saving settings:', settings)
+    const response = await fetch(`${API_URL}/api/settings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings)
+    })
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
+    
+    const data = await response.json()
+    if (data.success) {
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } else {
+      alert('Failed to save settings: ' + (data.error || 'Unknown error'))
+    }
+  } catch (error) {
+    console.error('Failed to save settings:', error)
+    alert('Failed to save settings: ' + error.message)
   }
+}
 
   const toggleToken = (token) => {
     setSettings(prev => ({
@@ -120,20 +129,23 @@ export default function Settings({ isMobile = false }) {
           <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: '6px' }}>
             Drawdown Cap (USD)
           </label>
-          <input
-            type="number"
-            value={settings.drawdownCap}
-            onChange={(e) => setSettings(prev => ({ ...prev, drawdownCap: parseFloat(e.target.value) }))}
-            style={{
-              width: '100%',
-              padding: '10px 14px',
-              borderRadius: '10px',
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: 'white',
-              fontSize: '16px'
-            }}
-          />
+<input
+  type="number"
+  value={settings.drawdownCap || 0}
+  onChange={(e) => setSettings(prev => ({ 
+    ...prev, 
+    drawdownCap: parseFloat(e.target.value) || 0 
+  }))}
+  style={{
+    width: '100%',
+    padding: '10px 14px',
+    borderRadius: '10px',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    color: 'white',
+    fontSize: '16px'
+  }}
+/>
           <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', marginTop: '4px' }}>
             Stop trading if daily loss exceeds this amount
           </p>

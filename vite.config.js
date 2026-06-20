@@ -1,12 +1,11 @@
-﻿// vite.config.js
-import { defineConfig } from 'vite'
+﻿import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    host: '0.0.0.0', // Allows connections from network
+    host: '0.0.0.0',
     hmr: {
       protocol: 'ws',
       host: 'localhost',
@@ -14,15 +13,21 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://syntra-ubkl.onrender.com',
         changeOrigin: true,
-        secure: false
+        secure: true
       }
-    },
-    cors: {
-      origin: 'http://localhost:3000',
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization']
     }
+  },
+  define: {
+    global: 'globalThis'
+  },
+  resolve: {
+    alias: {
+      buffer: 'buffer/'
+    }
+  },
+  optimizeDeps: {
+    include: ['buffer', 'ethers', 'react', 'react-dom']
   }
 })

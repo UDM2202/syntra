@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { useApp } from '../../context/AppContext'
 import { API_URL } from '../../utils/api'
-import { Brain, Zap, ArrowRight, Clock, Play, Square } from 'lucide-react'
+import { ethers } from 'ethers'
+import { Brain, Zap, ArrowRight, Clock, Play, Square, AlertTriangle, CheckCircle } from 'lucide-react'
 
 export default function TraderDecision({ isMobile = false }) {
   const { state, dispatch } = useApp()
+  const { walletAddress } = state
   const [showDetails, setShowDetails] = useState(false)
   const [isAutoTrading, setIsAutoTrading] = useState(false)
   const [autoStatus, setAutoStatus] = useState('Idle')
   const [currentDecision, setCurrentDecision] = useState(null)
+  const [pendingTrade, setPendingTrade] = useState(null)
+  const [isExecuting, setIsExecuting] = useState(false)
+  const [executionError, setExecutionError] = useState(null)
+  const [executionResult, setExecutionResult] = useState(null)
 
-  // Check auto-trade status and get decisions
   useEffect(() => {
     const checkStatus = async () => {
       try {
@@ -19,6 +24,12 @@ export default function TraderDecision({ isMobile = false }) {
         if (data.success) {
           setIsAutoTrading(data.isAutoTrading || false)
           setAutoStatus(data.isAutoTrading ? '🟢 Running' : '⚪ Idle')
+          if (data.pendingTrade) {
+            setPendingTrade(data.pendingTrade)
+            console.log('📊 Pending trade detected:', data.pendingTrade)
+          } else {
+            setPendingTrade(null)
+          }
         }
       } catch (error) {
         console.error('Failed to check status:', error)
@@ -31,7 +42,6 @@ export default function TraderDecision({ isMobile = false }) {
         const data = await response.json()
         if (data.success && data.decision) {
           setCurrentDecision(data.decision)
-          // Update AppContext with the decision
           dispatch({
             type: 'UPDATE_TRADE',
             payload: {
@@ -62,8 +72,14 @@ export default function TraderDecision({ isMobile = false }) {
 
   const startAutoTrade = async () => {
     try {
+      const purchasedAgents = state.marketplace
+        .filter(item => item.purchased)
+        .map(item => item.agent)
+      
       const response = await fetch(`${API_URL}/api/start-auto-trade`, {
-        method: 'POST'
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ purchasedAgents })
       })
       const result = await response.json()
       if (result.success) {
@@ -87,12 +103,177 @@ export default function TraderDecision({ isMobile = false }) {
       if (result.success) {
         setIsAutoTrading(false)
         setAutoStatus('⚪ Idle')
+        setPendingTrade(null)
       } else {
         alert(result.message || 'Failed to stop auto trading')
       }
     } catch (error) {
       console.error('Stop auto trade error:', error)
       alert('Failed to stop auto trading')
+    }
+  }
+
+  const executePendingTrade = async () => {
+    if (!pendingTrade || !walletAddress) {
+      setExecutionError('No trade to execute or wallet not connected')
+      return
+    }
+
+    if (!window.ethereum) {
+      setExecutionError('Please install MetaMask or Trust Wallet')
+      return
+    }
+
+    setIsExecuting(true)
+    setExecutionError(null)
+    setExecutionResult(null)
+
+    try {
+      console.log('📈 Executing trade with params:', pendingTrade)
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      
+      const network = await provider.getNetwork()
+      if (network.chainId !== 56) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x38' }]
+          })
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        } catch (switchError) {
+          setExecutionError('❌ Please switch to BNB Smart Chain')
+          setIsExecuting(false)
+          return
+        }
+      }
+
+     const signer = provider.getSigner()
+const amountIn = ethers.BigNumber.from(pendingTrade.amountIn)
+
+let tx
+
+if ((pendingTrade.action || 'BUY') === 'BUY') {
+  const router = new ethers.Contract(
+    pendingTrade.routerAddress,
+    [
+      'function swapExactETHForTokens(uint amountOutMin, address[] path, address to, uint deadline) external payable returns (uint[])'
+    ],
+    signer
+  )
+
+  tx = await router.swapExactETHForTokens(
+    0,
+    pendingTrade.path,
+    walletAddress,
+    pendingTrade.deadline,
+    {
+      value: amountIn,
+      gasLimit: 300000
+    }
+  )
+} else if (pendingTrade.action === 'SELL') {
+  const usdtContract = new ethers.Contract(
+    pendingTrade.path[0],
+    [
+      'function approve(address spender, uint amount) public returns (bool)'
+    ],
+    signer
+  )
+
+  const amountIn = ethers.BigNumber.from(pendingTrade.amountIn)
+
+  console.log('🔔 Approving USDT first')
+
+  const approveTx = await usdtContract.approve(
+    pendingTrade.routerAddress,
+    amountIn
+  )
+
+  await approveTx.wait()
+
+  const router = new ethers.Contract(
+    pendingTrade.routerAddress,
+    [
+      'function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] path, address to, uint deadline) external returns (uint[])'
+    ],
+    signer
+  )
+
+  console.log('🔔 Sending SELL transaction - wallet popup should appear')
+
+  tx = await router.swapExactTokensForETH(
+    amountIn,
+    0,
+    pendingTrade.path,
+    walletAddress,
+    pendingTrade.deadline,
+    {
+      gasLimit: 300000
+    }
+  )
+}
+
+      console.log('✅ Transaction sent:', tx.hash)
+      
+      const receipt = await tx.wait()
+      console.log('✅ Confirmed! Block:', receipt.blockNumber)
+
+      // ✅ RECORD THE TRADE IN BACKEND
+      try {
+        const recordResponse = await fetch(`${API_URL}/api/record-trade`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+  txHash: receipt.transactionHash,
+  action: pendingTrade.action || 'BUY',
+  amountIn: pendingTrade.amountIn,
+  price: pendingTrade.price,
+  expectedUSDT: pendingTrade.expectedUSDT || 0,
+  expectedBNB: pendingTrade.expectedBNB || 0,
+  blockNumber: receipt.blockNumber,
+  walletAddress: walletAddress,
+  conviction: pendingTrade.conviction || 75
+})
+        })
+        const recordData = await recordResponse.json()
+        console.log('✅ Trade recorded in backend:', recordData)
+      } catch (recordError) {
+        console.error('Failed to record trade:', recordError)
+      }
+
+      setExecutionResult({
+        success: true,
+        txHash: receipt.transactionHash,
+        price: pendingTrade.price,
+        amount: ethers.utils.formatEther(amountIn)
+      })
+      
+      setPendingTrade(null)
+      
+      dispatch({
+        type: 'UPDATE_TRADE_RESULT',
+        payload: {
+          result: 'EXECUTED',
+          txHash: receipt.transactionHash,
+          price: pendingTrade.price
+        }
+      })
+
+    } catch (error) {
+      console.error('Trade execution error:', error)
+      
+      if (error.code === 4001) {
+        setExecutionError('❌ You rejected the transaction in your wallet')
+      } else if (error.code === -32603) {
+        setExecutionError('❌ Transaction failed. Make sure you have enough BNB for gas fees.')
+      } else if (error.message && error.message.includes('insufficient funds')) {
+        setExecutionError('❌ Insufficient BNB balance. Please add more BNB for gas fees.')
+      } else {
+        setExecutionError(`❌ ${error.message || 'Trade failed'}`)
+      }
+    } finally {
+      setIsExecuting(false)
     }
   }
 
@@ -106,7 +287,6 @@ export default function TraderDecision({ isMobile = false }) {
       backdropFilter: 'blur(20px)',
       border: '1px solid rgba(255,255,255,0.06)'
     }}>
-      {/* Header */}
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
@@ -134,9 +314,10 @@ export default function TraderDecision({ isMobile = false }) {
             </h3>
             <p style={{ 
               fontSize: isMobile ? '11px' : '12px', 
-              color: isAutoTrading ? '#00D4AA' : 'rgba(255,255,255,0.4)'
+              color: pendingTrade ? '#00D4AA' : isAutoTrading ? '#00D4AA' : 'rgba(255,255,255,0.4)'
             }}>
-              {isAutoTrading ? '🟢 Generating signals' : '⚪ Auto-trading disabled'}
+              {pendingTrade ? '🚀 Trade Ready to Execute!' :
+               isAutoTrading ? '🟢 Generating signals' : '⚪ Auto-trading disabled'}
             </p>
           </div>
         </div>
@@ -209,7 +390,6 @@ export default function TraderDecision({ isMobile = false }) {
         </div>
       </div>
 
-      {/* Status Info */}
       <div style={{
         padding: '12px 16px',
         borderRadius: '12px',
@@ -223,19 +403,18 @@ export default function TraderDecision({ isMobile = false }) {
         fontSize: isMobile ? '12px' : '14px'
       }}>
         <span style={{ color: 'rgba(255,255,255,0.4)' }}>
-          {isAutoTrading 
-            ? '🤖 AI is generating trading signals' 
-            : '⏸️ AI is paused'}
+          {pendingTrade ? '🚀 Trade ready! Click "Execute Trade" below' :
+           isAutoTrading ? '🤖 AI is generating trading signals' : 
+           '⏸️ AI is paused'}
         </span>
         <span style={{ 
-          color: isAutoTrading ? '#00D4AA' : 'rgba(255,255,255,0.3)',
+          color: pendingTrade ? '#00D4AA' : isAutoTrading ? '#00D4AA' : 'rgba(255,255,255,0.3)',
           fontFamily: 'monospace'
         }}>
-          {isAutoTrading ? '🔴 SIGNAL GENERATOR' : '⚪ IDLE'}
+          {pendingTrade ? '🔴 TRADE READY' : isAutoTrading ? '🔴 SIGNAL GENERATOR' : '⚪ IDLE'}
         </span>
       </div>
 
-      {/* AI Decision Display */}
       {decision ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '12px' : '16px' }}>
           <div style={{
@@ -295,17 +474,107 @@ export default function TraderDecision({ isMobile = false }) {
             </div>
           )}
 
-          <div style={{
-            padding: isMobile ? '10px' : '12px',
-            borderRadius: '10px',
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.04)',
-            fontSize: isMobile ? '11px' : '12px',
-            color: 'rgba(255,255,255,0.3)',
-            textAlign: 'center'
-          }}>
-            💡 Go to <strong>"Manual Trading"</strong> tab to execute this trade from your wallet
-          </div>
+          {pendingTrade && (
+            <div style={{
+              padding: isMobile ? '16px' : '20px',
+              borderRadius: '14px',
+              background: 'rgba(0,212,170,0.1)',
+              border: '1px solid rgba(0,212,170,0.2)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <h4 style={{ fontSize: '14px', color: '#00D4AA', marginBottom: '4px' }}>
+                    🚀 Trade Ready to Execute
+                  </h4>
+                  <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
+                    {ethers.utils.formatEther(pendingTrade.amountIn)} BNB @ ${pendingTrade.price?.toFixed(2)}
+                  </p>
+                </div>
+                <button
+                  onClick={executePendingTrade}
+                  disabled={isExecuting || !walletAddress}
+                  style={{
+                    padding: isMobile ? '8px 20px' : '10px 24px',
+                    borderRadius: '12px',
+                    fontSize: isMobile ? '14px' : '15px',
+                    fontWeight: 600,
+                    border: 'none',
+                    background: (isExecuting || !walletAddress)
+                      ? 'rgba(255,255,255,0.05)'
+                      : 'linear-gradient(135deg, #00D4AA, #34D399)',
+                    color: (isExecuting || !walletAddress)
+                      ? 'rgba(255,255,255,0.3)'
+                      : 'white',
+                    cursor: (isExecuting || !walletAddress) ? 'default' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  {isExecuting ? (
+                    <>
+                      <div style={{
+                        width: '16px',
+                        height: '16px',
+                        border: '2px solid rgba(255,255,255,0.2)',
+                        borderTop: '2px solid #00D4AA',
+                        borderRadius: '50%',
+                        animation: 'spin 0.8s linear infinite'
+                      }} />
+                      Executing...
+                    </>
+                  ) : !walletAddress ? (
+                    'Connect Wallet'
+                  ) : (
+                    <>
+                      <CheckCircle size={18} />
+                      Confirm Trade in Wallet
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {executionResult && (
+            <div style={{
+              padding: isMobile ? '12px' : '14px',
+              borderRadius: '10px',
+              background: 'rgba(0,212,170,0.05)',
+              border: '1px solid rgba(0,212,170,0.1)',
+              fontSize: isMobile ? '12px' : '13px',
+              color: 'rgba(255,255,255,0.7)'
+            }}>
+              ✅ Trade Executed!
+              <br />
+              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>
+                Tx: {executionResult.txHash.slice(0, 20)}...{executionResult.txHash.slice(-10)}
+              </span>
+              <br />
+              <a
+                href={`https://bscscan.com/tx/${executionResult.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '11px', color: '#6C3CE1' }}
+              >
+                🔗 View on BSCScan
+              </a>
+            </div>
+          )}
+
+          {executionError && (
+            <div style={{
+              padding: isMobile ? '12px' : '14px',
+              borderRadius: '10px',
+              background: 'rgba(255,107,107,0.1)',
+              border: '1px solid rgba(255,107,107,0.15)',
+              fontSize: isMobile ? '12px' : '13px',
+              color: '#FF6B6B'
+            }}>
+              <AlertTriangle size={14} style={{ display: 'inline', marginRight: '8px' }} />
+              {executionError}
+            </div>
+          )}
         </div>
       ) : (
         <div style={{ 

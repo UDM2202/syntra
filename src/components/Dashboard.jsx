@@ -12,7 +12,8 @@ import ExecutionResult from './trading/ExecutionResult'
 import ReputationDisplay from './reputation/ReputationDisplay'
 import WalletConnectButton from './WalletConnectButton'
 import Settings from './Settings'
-import { Store, Signal, Brain, Shield, Menu, X, Wallet } from 'lucide-react'
+import { Store, Signal, Brain, Shield, Menu, X, Wallet} from 'lucide-react'
+import { Settings as SettingsIcon } from 'lucide-react'
 
 export default function Dashboard() {
   const { state } = useApp()
@@ -36,7 +37,7 @@ export default function Dashboard() {
     { id: 'signals', label: ' Live Signals', icon: Signal },
     { id: 'trading', label: ' AI Trading', icon: Brain },
     { id: 'reputation', label: ' Reputation', icon: Shield },
-     { id: 'settings', label: ' Settings', icon: SettingsIcon }
+     { id: 'settings', label: ' Settings', icon:  SettingsIcon }
   ]
 
   const getGridColumns = () => {

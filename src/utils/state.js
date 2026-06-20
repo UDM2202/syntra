@@ -1,10 +1,11 @@
+// src/utils/state.js
 export function initializeState() {
   return {
     agents: [
       {
         type: 'whale',
         name: 'Whale Agent',
-        price: 0.01,
+        price: 0.001,  // Reduced from 0.01
         trust: 85,
         accuracy: 78,
         signal: null,
@@ -13,7 +14,7 @@ export function initializeState() {
       {
         type: 'narrative',
         name: 'Narrative Agent',
-        price: 0.005,
+        price: 0.0005,  // Reduced from 0.005
         trust: 72,
         accuracy: 65,
         signal: null,
@@ -22,7 +23,7 @@ export function initializeState() {
       {
         type: 'derivatives',
         name: 'Derivatives Agent',
-        price: 0.008,
+        price: 0.0008,  // Reduced from 0.008
         trust: 68,
         accuracy: 71,
         signal: null,
@@ -30,9 +31,9 @@ export function initializeState() {
       }
     ],
     marketplace: [
-      { agent: 'whale', price: 0.01, trust: 85, purchased: false },
-      { agent: 'narrative', price: 0.005, trust: 72, purchased: false },
-      { agent: 'derivatives', price: 0.008, trust: 68, purchased: false }
+      { agent: 'whale', price: 0.001, trust: 85, purchased: false },
+      { agent: 'narrative', price: 0.0005, trust: 72, purchased: false },
+      { agent: 'derivatives', price: 0.0008, trust: 68, purchased: false }
     ],
     trades: [],
     currentTrade: null,
