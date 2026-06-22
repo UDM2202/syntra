@@ -1,0 +1,3 @@
+[33m90db915[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin2/main[m[33m)[m Agent starts IDLE - user controls Start/Stop
+[33m279e921[m v21: competition ready + fix stale state wipe + remove restart loop
+[33m386bdbf[m v19: HYBRID - TWAK data + ethers.js execution + 30% drawdown cap + stables rotation
