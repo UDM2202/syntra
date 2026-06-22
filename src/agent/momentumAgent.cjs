@@ -1,5 +1,5 @@
-// src/agent/momentumAgent.cjs
-// Syntra Agent v17 - TWAK via direct Node require
+﻿// src/agent/momentumAgent.cjs
+// Syntra Agent v18 - TWAK with wallet file setup
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +10,6 @@ const PASSWORD = process.env.TWAK_WALLET_PASSWORD;
 const AGENT_ADDRESS = process.env.AGENT_ADDRESS || '0x204b13fe30C141cfA4E8a3D6136aA3391db846C2';
 const BSC_RPC = process.env.BSC_RPC || 'https://bsc-dataseed.binance.org/';
 const provider = new ethers.providers.JsonRpcProvider(BSC_RPC);
-const TWAK_CMD = 'npx @trustwallet/cli';
 const STATE_FILE = path.join(__dirname, '..', '..', 'agent-state.json');
 const CONTROL_FILE = path.join(__dirname, '..', '..', 'agent-control.json');
 const HISTORY_FILE = path.join(__dirname, '..', '..', 'trade-history.json');
@@ -19,6 +18,32 @@ const COOLDOWN_SECONDS = 30;
 const MAX_TRADE_BNB = 0.0002;
 const TRADE_PAIRS = ['USDT', 'ETH', 'USDC'];
 // ============================================
+// SETUP TWAK WALLET ON RENDER
+// ============================================
+function setupTwakWallet() {
+  const twakDir = path.join(process.env.HOME || '/root', '.twak');
+  const walletFile = path.join(twakDir, 'wallet.json');
+  // Copy wallet from project to TWAK directory
+  const projectWallet = path.join(__dirname, '..', '..', 'twak-wallet.json');
+  const projectCreds = path.join(__dirname, '..', '..', 'twak-credentials.json');
+  if (!fs.existsSync(twakDir)) {
+    fs.mkdirSync(twakDir, { recursive: true });
+  }
+  if (fs.existsSync(projectWallet) && !fs.existsSync(walletFile)) {
+    fs.copyFileSync(projectWallet, walletFile);
+    console.log('Wallet copied to ' + walletFile);
+  }
+  if (fs.existsSync(projectCreds)) {
+    const credsFile = path.join(twakDir, 'credentials.json');
+    if (!fs.existsSync(credsFile)) {
+      fs.copyFileSync(projectCreds, credsFile);
+      console.log('Credentials copied to ' + credsFile);
+    }
+  }
+}
+// Run setup
+setupTwakWallet();
+// ============================================
 // BALANCE
 // ============================================
 async function getBnbBalance() {
@@ -26,26 +51,17 @@ async function getBnbBalance() {
     const balance = await provider.getBalance(AGENT_ADDRESS);
     const bnb = parseFloat(ethers.utils.formatEther(balance));
     let usd = bnb * 580;
-    try {
-      const priceFeed = new ethers.Contract(
-        '0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE',
-        ['function latestAnswer() view returns (int256)'],
-        provider
-      );
-      const price = await priceFeed.latestAnswer();
-      usd = bnb * parseFloat(ethers.utils.formatUnits(price, 8));
-    } catch (e) {}
     return { bnb, usd };
   } catch (e) {
     return { bnb: 0, usd: 0 };
   }
 }
 // ============================================
-// SWAP VIA TWAK (direct Node call)
+// SWAP VIA TWAK
 // ============================================
 function twakSwap(amount, fromToken, toToken) {
   try {
-    const cmd = TWAK_CMD + ' swap ' + amount + ' ' + fromToken + ' ' + toToken + ' --chain bsc --password "' + PASSWORD + '" --slippage 1 --json';
+    const cmd = 'npx @trustwallet/cli swap ' + amount + ' ' + fromToken + ' ' + toToken + ' --chain bsc --password "' + PASSWORD + '" --slippage 1 --json';
     const result = execSync(cmd, { encoding: 'utf8', timeout: 60000, env: { ...process.env } });
     const parsed = JSON.parse(result);
     const hash = parsed.txHash || parsed.transactionHash || parsed.hash;
@@ -61,7 +77,7 @@ function twakSwap(amount, fromToken, toToken) {
   }
 }
 // ============================================
-// HISTORY
+// HISTORY + STATE (same as before)
 // ============================================
 function loadHistory() {
   try { if (fs.existsSync(HISTORY_FILE)) return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8')); }
@@ -70,9 +86,6 @@ function loadHistory() {
 }
 function saveHistory(h) { fs.writeFileSync(HISTORY_FILE, JSON.stringify(h, null, 2)); }
 let history = loadHistory();
-// ============================================
-// STATE
-// ============================================
 let agentState = {
   running: false, agent: { address: AGENT_ADDRESS, configured: true },
   market: { btc: 0 }, trades: history.trades, openPosition: null, currentDecision: null,
@@ -94,9 +107,6 @@ function addLog(type, message) {
   if (agentState._logs.length > 100) agentState._logs = agentState._logs.slice(0, 100);
   console.log('  [' + type + '] ' + message);
 }
-// ============================================
-// CONTROL
-// ============================================
 let tradingActive = true;
 function checkControl() {
   try {
@@ -117,9 +127,6 @@ function checkControl() {
     }
   } catch (e) {}
 }
-// ============================================
-// MAIN LOOP
-// ============================================
 async function cycle() {
   checkControl();
   if (!tradingActive) { agentState.running = false; saveState(); return; }
@@ -130,7 +137,6 @@ async function cycle() {
   agentState.market.btc = bnbData.usd > 0 ? (bnbData.usd / 0.005) : 0;
   if (agentState.openPosition) {
     const heldSecs = (Date.now() - agentState.openPosition.entryTime) / 1000;
-    console.log('  Holding: ' + agentState.openPosition.symbol + ' (' + heldSecs.toFixed(0) + 's)');
     if (heldSecs >= 60) {
       addLog('position_close', 'Closing ' + agentState.openPosition.symbol);
       const result = twakSwap(agentState.openPosition.amount + '', agentState.openPosition.symbol, 'BNB');
@@ -144,7 +150,7 @@ async function cycle() {
     saveHistory(history); saveState();
     return;
   }
-  console.log('CYCLE | BNB: ' + bnbData.bnb.toFixed(6) + ' | $' + bnbData.usd.toFixed(2) + ' | Trades: ' + history.totalTrades);
+  console.log('CYCLE | BNB: ' + bnbData.bnb.toFixed(6) + ' | Trades: ' + history.totalTrades);
   if (bnbData.bnb < 0.0005) { addLog('trade_blocked', 'BNB too low'); saveState(); return; }
   const sinceLast = Date.now() - history.lastTradeTime;
   if (history.lastTradeTime > 0 && sinceLast < COOLDOWN_SECONDS * 1000) { saveState(); return; }
@@ -164,21 +170,12 @@ async function cycle() {
   }
   saveState();
 }
-// ============================================
-// START
-// ============================================
 console.log('========================================');
-console.log('  SYNTA v17 - TWAK via direct Node call');
-console.log('  CMD: ' + TWAK_CMD);
+console.log('  SYNTA v18 - TWAK with wallet setup');
 console.log('========================================');
 fs.writeFileSync(CONTROL_FILE, JSON.stringify({ action: 'none', timestamp: 0 }));
 saveState();
 setInterval(checkControl, 2000);
-addLog('system', 'v17 - TWAK direct');
+addLog('system', 'v18 - TWAK wallet ready');
 cycle();
 setInterval(cycle, CYCLE_SECONDS * 1000);
-process.on('SIGINT', function() {
-  agentState.running = false;
-  saveHistory(history); saveState();
-  process.exit(0);
-});
