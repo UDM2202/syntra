@@ -52,7 +52,7 @@ async function getBnbBalance() {
 // ============================================
 function twakSwap(amount, fromToken, toToken) {
   try {
-    const cmd = 'npx twak swap ' + amount + ' ' + fromToken + ' ' + toToken + ' --chain bsc --password "' + PASSWORD + '" --slippage 1 --json';
+    const cmd = 'node_modules/.bin/twak swap ' + amount + ' ' + fromToken + ' ' + toToken + ' --chain bsc --password "' + PASSWORD + '" --slippage 1 --json';
     const result = execSync(cmd, { encoding: 'utf8', timeout: 60000, env: { ...process.env } });
     const parsed = JSON.parse(result);
     const hash = parsed.txHash || parsed.transactionHash || parsed.hash;
