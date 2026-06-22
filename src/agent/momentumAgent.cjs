@@ -1,6 +1,5 @@
 ﻿// src/agent/momentumAgent.cjs
-// Syntra Agent v14 - Render-compatible
-// Uses ethers.js for balance (works anywhere), npx twak for swaps
+// Syntra Agent v15 - DEMO MODE (fast cycles for judges)
 
 const { execSync } = require('child_process');
 const fs = require('fs');
@@ -17,18 +16,16 @@ const provider = new ethers.providers.JsonRpcProvider(BSC_RPC);
 const STATE_FILE = path.join(__dirname, '..', '..', 'agent-state.json');
 const CONTROL_FILE = path.join(__dirname, '..', '..', 'agent-control.json');
 const HISTORY_FILE = path.join(__dirname, '..', '..', 'trade-history.json');
-const CYCLE_SECONDS = 300;
-const MIN_TRADE_INTERVAL = 3600;
 
-const MAX_TRADE = parseFloat(process.env.MAX_TRADE_AMOUNT) || 1;
-const MAX_DAILY_TRADES = parseInt(process.env.MAX_DAILY_TRADES) || 7;
-const TP_PERCENT = parseFloat(process.env.TAKE_PROFIT_PERCENT) || 5;
-const SL_PERCENT = parseFloat(process.env.STOP_LOSS_PERCENT) || 3;
-
-const TRADE_PAIRS = ['ETH', 'USDT'];
+// DEMO SETTINGS - fast and visible
+const CYCLE_SECONDS = 15;        // Check every 15 seconds
+const COOLDOWN_SECONDS = 30;     // Trade max every 30 seconds
+const MAX_TRADE_BNB = 0.0002;    // Tiny trades (~.12)
+const MAX_DAILY_TRADES = 50;     // Plenty for demo
+const TRADE_PAIRS = ['USDT', 'ETH', 'USDC'];
 
 // ============================================
-// BALANCE VIA ETHERS (no TWAK needed)
+// BALANCE VIA ETHERS
 // ============================================
 async function getBnbBalance() {
   try {
@@ -46,18 +43,16 @@ async function getBnbBalance() {
     } catch (e) {}
     return { bnb, usd };
   } catch (e) {
-    console.log('Balance error: ' + e.message);
     return { bnb: 0, usd: 0 };
   }
 }
 
 // ============================================
-// SWAP VIA NPX TWAK
+// SWAP
 // ============================================
 function twakSwap(amount, fromToken, toToken) {
   try {
-    const cmd = 'npx twak swap ' + amount + ' ' + fromToken + ' ' + toToken + ' --chain bsc --password "' + PASSWORD + '" --slippage 0.5 --json';
-    console.log('  SWAP: npx twak swap ' + amount + ' ' + fromToken + ' -> ' + toToken);
+    const cmd = 'npx twak swap ' + amount + ' ' + fromToken + ' ' + toToken + ' --chain bsc --password "' + PASSWORD + '" --slippage 1 --json';
     const result = execSync(cmd, { encoding: 'utf8', timeout: 60000, env: { ...process.env } });
     const parsed = JSON.parse(result);
     const hash = parsed.txHash || parsed.transactionHash || parsed.hash;
@@ -137,7 +132,7 @@ function checkControl() {
 }
 
 // ============================================
-// MAIN LOOP
+// MAIN LOOP - FAST DEMO MODE
 // ============================================
 async function cycle() {
   checkControl();
@@ -149,14 +144,13 @@ async function cycle() {
   agentState.usdValue = bnbData.usd;
   agentState.market.btc = bnbData.usd > 0 ? (bnbData.usd / 0.005) : 0;
 
-  console.log('CYCLE | BNB: ' + bnbData.bnb.toFixed(6) + ' | $' + bnbData.usd.toFixed(2) + ' | Trades: ' + history.totalTrades);
-
-  // Check open position
+  // Auto-close position after 60 seconds for demo speed
   if (agentState.openPosition) {
-    const hoursHeld = (Date.now() - agentState.openPosition.entryTime) / 3600000;
-    console.log('  Holding: ' + agentState.openPosition.symbol + ' for ' + hoursHeld.toFixed(1) + 'h');
-    if (hoursHeld >= 24) {
-      addLog('position_close', 'Auto-closing after 24h');
+    const heldSecs = (Date.now() - agentState.openPosition.entryTime) / 1000;
+    console.log('  Holding: ' + agentState.openPosition.symbol + ' (' + heldSecs.toFixed(0) + 's)');
+    
+    if (heldSecs >= 60) {
+      addLog('position_close', 'Closing ' + agentState.openPosition.symbol + ' after 60s');
       const result = twakSwap(agentState.openPosition.amount + '', agentState.openPosition.symbol, 'BNB');
       if (result.success) {
         history.wins++;
@@ -169,29 +163,26 @@ async function cycle() {
     return;
   }
 
-  if (bnbData.bnb < 0.001) {
-    console.log('  BNB too low (need 0.001+)');
+  console.log('CYCLE | BNB: ' + bnbData.bnb.toFixed(6) + ' | $' + bnbData.usd.toFixed(2) + ' | Trades: ' + history.totalTrades);
+
+  if (bnbData.bnb < 0.0003) {
+    addLog('trade_blocked', 'BNB too low: ' + bnbData.bnb.toFixed(4));
     saveState();
     return;
   }
 
-  const timeSinceLastTrade = Date.now() - history.lastTradeTime;
-  if (history.lastTradeTime > 0 && timeSinceLastTrade < MIN_TRADE_INTERVAL * 1000) {
-    const mins = Math.ceil((MIN_TRADE_INTERVAL * 1000 - timeSinceLastTrade) / 60000);
-    console.log('  Cooldown: ' + mins + ' min');
+  // Cooldown
+  const sinceLast = Date.now() - history.lastTradeTime;
+  if (history.lastTradeTime > 0 && sinceLast < COOLDOWN_SECONDS * 1000) {
     saveState();
     return;
   }
 
-  if (history.totalTrades >= MAX_DAILY_TRADES) {
-    console.log('  Daily limit: ' + MAX_DAILY_TRADES);
-    saveState();
-    return;
-  }
+  if (history.totalTrades >= MAX_DAILY_TRADES) { saveState(); return; }
 
+  // Rotate through pairs
   const target = TRADE_PAIRS[history.totalTrades % TRADE_PAIRS.length];
-  const amount = Math.min(MAX_TRADE, bnbData.bnb * 0.05);
-  if (amount < 0.0005) { saveState(); return; }
+  const amount = MAX_TRADE_BNB;
 
   addLog('signal_buy', 'BUY ' + target + ' | ' + amount.toFixed(6) + ' BNB');
   const result = twakSwap(amount.toFixed(6), 'BNB', target);
@@ -203,7 +194,7 @@ async function cycle() {
     history.trades.push({ ...agentState.openPosition, result: 'OPEN' });
     saveHistory(history);
     addLog('trade_approved', result.txHash);
-    addLog('position_open', target);
+    addLog('position_open', target + ' | close in 60s');
   } else {
     addLog('trade_blocked', target + ': ' + (result.error || 'failed').substring(0, 80));
   }
@@ -215,16 +206,17 @@ async function cycle() {
 // START
 // ============================================
 console.log('========================================');
-console.log('  SYNTA v14 - RENDER READY');
-console.log('  Balance: ethers.js | Swap: npx twak');
-console.log('  TP: ' + TP_PERCENT + '% | SL: ' + SL_PERCENT + '%');
+console.log('  SYNTA v15 - DEMO MODE');
+console.log('  Cycle: ' + CYCLE_SECONDS + 's | Cooldown: ' + COOLDOWN_SECONDS + 's');
+console.log('  Trade size: ' + MAX_TRADE_BNB + ' BNB');
+console.log('  Position close: 60 seconds');
 console.log('========================================');
 
 fs.writeFileSync(CONTROL_FILE, JSON.stringify({ action: 'none', timestamp: 0 }));
 saveState();
 setInterval(checkControl, 2000);
 
-addLog('system', 'Agent online - v14');
+addLog('system', 'DEMO MODE - ' + CYCLE_SECONDS + 's cycles');
 cycle();
 setInterval(cycle, CYCLE_SECONDS * 1000);
 
