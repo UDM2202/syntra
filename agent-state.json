@@ -1,0 +1,221 @@
+{
+  "running": false,
+  "agent": {
+    "address": "0x204b13fe30C141cfA4E8a3D6136aA3391db846C2",
+    "configured": true
+  },
+  "market": {
+    "btc": 63494.65708637349
+  },
+  "trades": [],
+  "openPosition": null,
+  "currentDecision": {
+    "decision": "BUY",
+    "conviction": 75,
+    "signals": {
+      "trending": {
+        "name": "trending",
+        "direction": "bullish",
+        "confidence": 75
+      }
+    },
+    "market": {
+      "btc": 63494.65708637349
+    },
+    "timestamp": 1782088375274
+  },
+  "stats": {
+    "totalTrades": 0,
+    "wins": 0,
+    "losses": 0,
+    "pnl": 0,
+    "winRate": 0
+  },
+  "topMomentum": [
+    {
+      "symbol": "ETH",
+      "price": 1713.3475524746177,
+      "score": 85,
+      "direction": "up",
+      "change": "+0.3"
+    },
+    {
+      "symbol": "AAVE",
+      "price": 73.62378805848613,
+      "score": 75,
+      "direction": "up",
+      "change": "+0.3"
+    },
+    {
+      "symbol": "LTC",
+      "price": 44.61173119590686,
+      "score": 65,
+      "direction": "up",
+      "change": "+0.3"
+    },
+    {
+      "symbol": "LINK",
+      "price": 7.841841952332638,
+      "score": 55,
+      "direction": "up",
+      "change": "+0.3"
+    },
+    {
+      "symbol": "AVAX",
+      "price": 6.1325622405627485,
+      "score": 45,
+      "direction": "up",
+      "change": "+0.3"
+    }
+  ],
+  "bnbBalance": 0.0026244208,
+  "usdtBalance": 0,
+  "usdValue": 1.54,
+  "lastUpdate": "2026-06-22T00:53:55.602Z",
+  "_logs": [
+    {
+      "id": 1782088380444.478,
+      "type": "trade_blocked",
+      "message": "FET swap failed, trying next token next cycle",
+      "timestamp": 1782088380444
+    },
+    {
+      "id": 1782088375274.5718,
+      "type": "signal_buy",
+      "message": "BUY FET | $0.1795 | 0.000262 BNB",
+      "timestamp": 1782088375274
+    },
+    {
+      "id": 1782088371046.8728,
+      "type": "trade_blocked",
+      "message": "USDT swap failed, trying next token next cycle",
+      "timestamp": 1782088371046
+    },
+    {
+      "id": 1782088348114.4744,
+      "type": "signal_buy",
+      "message": "BUY USDT | $0.9989 | 0.000292 BNB",
+      "timestamp": 1782088348114
+    },
+    {
+      "id": 1782088335311.6736,
+      "type": "trade_blocked",
+      "message": "CAKE swap failed, trying next token next cycle",
+      "timestamp": 1782088335311
+    },
+    {
+      "id": 1782088331213.567,
+      "type": "signal_buy",
+      "message": "BUY CAKE | $1.3638 | 0.000324 BNB",
+      "timestamp": 1782088331213
+    },
+    {
+      "id": 1782088296424.5972,
+      "type": "trade_blocked",
+      "message": "ATOM swap failed, trying next token next cycle",
+      "timestamp": 1782088296424
+    },
+    {
+      "id": 1782088290432.3342,
+      "type": "signal_buy",
+      "message": "BUY ATOM | $1.7604 | 0.000324 BNB",
+      "timestamp": 1782088290432
+    },
+    {
+      "id": 1782088242427.1216,
+      "type": "trade_blocked",
+      "message": "INJ swap failed, trying next token next cycle",
+      "timestamp": 1782088242427
+    },
+    {
+      "id": 1782088238070.5366,
+      "type": "signal_buy",
+      "message": "BUY INJ | $4.8490 | 0.000324 BNB",
+      "timestamp": 1782088238070
+    },
+    {
+      "id": 1782088183240.7085,
+      "type": "trade_blocked",
+      "message": "AVAX swap failed, trying next token next cycle",
+      "timestamp": 1782088183240
+    },
+    {
+      "id": 1782088175590.151,
+      "type": "signal_buy",
+      "message": "BUY AVAX | $6.1322 | 0.000360 BNB",
+      "timestamp": 1782088175590
+    },
+    {
+      "id": 1782088127574.1514,
+      "type": "trade_blocked",
+      "message": "LINK swap failed, trying next token next cycle",
+      "timestamp": 1782088127574
+    },
+    {
+      "id": 1782088124001.9502,
+      "type": "signal_buy",
+      "message": "BUY LINK | $7.8418 | 0.000360 BNB",
+      "timestamp": 1782088124001
+    },
+    {
+      "id": 1782088001798.5374,
+      "type": "system",
+      "message": "Trading STOPPED",
+      "timestamp": 1782088001798
+    },
+    {
+      "id": 1782087719104.1492,
+      "type": "trade_blocked",
+      "message": "LTC swap failed, trying next token next cycle",
+      "timestamp": 1782087719104
+    },
+    {
+      "id": 1782087714031.824,
+      "type": "signal_buy",
+      "message": "BUY LTC | $44.5247 | 0.000400 BNB",
+      "timestamp": 1782087714031
+    },
+    {
+      "id": 1782087678027.5366,
+      "type": "trade_blocked",
+      "message": "AAVE swap failed, trying next token next cycle",
+      "timestamp": 1782087678027
+    },
+    {
+      "id": 1782087673958.0613,
+      "type": "signal_buy",
+      "message": "BUY AAVE | $73.6238 | 0.000400 BNB",
+      "timestamp": 1782087673958
+    },
+    {
+      "id": 1782087630000.5178,
+      "type": "system",
+      "message": "Trading STARTED",
+      "timestamp": 1782087630000
+    },
+    {
+      "id": 1782087590997.5142,
+      "type": "trade_blocked",
+      "message": "ETH swap failed, trying next token next cycle",
+      "timestamp": 1782087590997
+    },
+    {
+      "id": 1782087570023.2754,
+      "type": "signal_buy",
+      "message": "BUY ETH | $1709.7859 | 0.000400 BNB",
+      "timestamp": 1782087570023
+    },
+    {
+      "id": 1782087439797.8079,
+      "type": "system",
+      "message": "Trading STOPPED",
+      "timestamp": 1782087439797
+    },
+    {
+      "id": 1782087332536.7341,
+      "type": "system",
+      "message": "Agent started - 18 BSC tokens ready",
+      "timestamp": 1782087332536
+    }
+  ]
+}
