@@ -1,0 +1,64 @@
+{
+  "trades": [
+    {
+      "symbol": "USDT",
+      "entryPrice": 0.998875711965846,
+      "entryTime": 1782203501411,
+      "costBnb": 0.0003,
+      "tokenAmount": 0.1713159838149689,
+      "txHash": "0x48abd94ec090c2a4f875959aa4f24d4788b80288bc170bce118301a07e89aa69",
+      "result": "OPEN"
+    },
+    {
+      "symbol": "BNB",
+      "result": "OPEN",
+      "entryPrice": 572.8101337076273,
+      "time": 1782206009993
+    },
+    {
+      "symbol": "BNB",
+      "result": "WIN",
+      "pnl": "0.000000",
+      "closeTx": "0xdedff5af2b250a428308d7c4e3ec8e20c52784f6ee7c786001a47737d251a3b3",
+      "closeTime": 1782206151039
+    },
+    {
+      "symbol": "BNB",
+      "result": "OPEN",
+      "entryPrice": 572.5687606484452,
+      "time": 1782206164847
+    },
+    {
+      "symbol": "BNB",
+      "result": "WIN",
+      "entryPrice": 572.5687606484452,
+      "exitPrice": 580,
+      "profit": "0.000000",
+      "closeTx": "0x44fb7a1c0a3a87ba2979132ae2d90c2fff1281cc9c75bfc97e4e21174c8bfd79",
+      "closeTime": 1782206526117
+    },
+    {
+      "symbol": "BNB",
+      "result": "LOSS",
+      "pnl": "-0.000000",
+      "closeTx": "0x048191812468a1f304355e3486f4bf7178ec77029ca0654f14c8b3db611f7b35",
+      "closeTime": 1782206526125
+    },
+    {
+      "symbol": "BNB",
+      "result": "LOSS",
+      "pnl": "-0.000000",
+      "closeTx": "0x383e409d0fc244ad6bd5cb1946fbbd743f584655e2e7bb67bf0f80b52bbc442f",
+      "closeTime": 1782206526230
+    }
+  ],
+  "totalTrades": 3,
+  "wins": 2,
+  "losses": 2,
+  "totalPnl": 2.5026688332222616e-7,
+  "totalProfit": 4.5384690658765325e-7,
+  "totalLoss": 2.0358002326542712e-7,
+  "lastTradeTime": 1782206164847,
+  "peakCapital": 0.3897533894135919,
+  "startCapital": 1.3631229638183813
+}

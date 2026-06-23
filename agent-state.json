@@ -1,221 +1,152 @@
 {
-  "running": false,
+  "running": true,
   "agent": {
     "address": "0x204b13fe30C141cfA4E8a3D6136aA3391db846C2",
     "configured": true
   },
   "market": {
-    "btc": 63494.65708637349
+    "btc": 0
   },
-  "trades": [],
-  "openPosition": null,
-  "currentDecision": {
-    "decision": "BUY",
-    "conviction": 75,
-    "signals": {
-      "trending": {
-        "name": "trending",
-        "direction": "bullish",
-        "confidence": 75
-      }
-    },
-    "market": {
-      "btc": 63494.65708637349
-    },
-    "timestamp": 1782088375274
-  },
-  "stats": {
-    "totalTrades": 0,
-    "wins": 0,
-    "losses": 0,
-    "pnl": 0,
-    "winRate": 0
-  },
-  "topMomentum": [
+  "trades": [
     {
-      "symbol": "ETH",
-      "price": 1713.3475524746177,
-      "score": 85,
-      "direction": "up",
-      "change": "+0.3"
+      "symbol": "USDT",
+      "entryPrice": 0.998875711965846,
+      "entryTime": 1782203501411,
+      "costBnb": 0.0003,
+      "tokenAmount": 0.1713159838149689,
+      "txHash": "0x48abd94ec090c2a4f875959aa4f24d4788b80288bc170bce118301a07e89aa69",
+      "result": "OPEN"
     },
     {
-      "symbol": "AAVE",
-      "price": 73.62378805848613,
-      "score": 75,
-      "direction": "up",
-      "change": "+0.3"
+      "symbol": "BNB",
+      "result": "OPEN",
+      "entryPrice": 572.8101337076273,
+      "time": 1782206009993
     },
     {
-      "symbol": "LTC",
-      "price": 44.61173119590686,
-      "score": 65,
-      "direction": "up",
-      "change": "+0.3"
+      "symbol": "BNB",
+      "result": "WIN",
+      "pnl": "0.000000",
+      "closeTx": "0xdedff5af2b250a428308d7c4e3ec8e20c52784f6ee7c786001a47737d251a3b3",
+      "closeTime": 1782206151039
     },
     {
-      "symbol": "LINK",
-      "price": 7.841841952332638,
-      "score": 55,
-      "direction": "up",
-      "change": "+0.3"
+      "symbol": "BNB",
+      "result": "OPEN",
+      "entryPrice": 572.5687606484452,
+      "time": 1782206164847
     },
     {
-      "symbol": "AVAX",
-      "price": 6.1325622405627485,
-      "score": 45,
-      "direction": "up",
-      "change": "+0.3"
+      "symbol": "BNB",
+      "result": "WIN",
+      "entryPrice": 572.5687606484452,
+      "exitPrice": 580,
+      "profit": "0.000000",
+      "closeTx": "0x44fb7a1c0a3a87ba2979132ae2d90c2fff1281cc9c75bfc97e4e21174c8bfd79",
+      "closeTime": 1782206526117
+    },
+    {
+      "symbol": "BNB",
+      "result": "LOSS",
+      "pnl": "-0.000000",
+      "closeTx": "0x048191812468a1f304355e3486f4bf7178ec77029ca0654f14c8b3db611f7b35",
+      "closeTime": 1782206526125
+    },
+    {
+      "symbol": "BNB",
+      "result": "LOSS",
+      "pnl": "-0.000000",
+      "closeTx": "0x383e409d0fc244ad6bd5cb1946fbbd743f584655e2e7bb67bf0f80b52bbc442f",
+      "closeTime": 1782206526230
     }
   ],
-  "bnbBalance": 0.0026244208,
-  "usdtBalance": 0,
-  "usdValue": 1.54,
-  "lastUpdate": "2026-06-22T00:53:55.602Z",
+  "openPosition": null,
+  "currentDecision": null,
+  "stats": {
+    "totalTrades": 3,
+    "wins": 2,
+    "losses": 2,
+    "pnl": 2.5026688332222616e-7,
+    "winRate": "66.7",
+    "totalProfit": 4.5384690658765325e-7,
+    "totalLoss": 2.0358002326542712e-7
+  },
+  "topMomentum": [],
+  "bnbBalance": 0.000680388006583416,
+  "usdValue": 0.38973996454519544,
+  "totalUsd": 0.38973996454519544,
+  "drawdown": 0.0034444519947981742,
+  "lastUpdate": "2026-06-23T09:32:17.860Z",
   "_logs": [
     {
-      "id": 1782088380444.478,
-      "type": "trade_blocked",
-      "message": "FET swap failed, trying next token next cycle",
-      "timestamp": 1782088380444
+      "id": 1782207137860,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782207137860
     },
     {
-      "id": 1782088375274.5718,
-      "type": "signal_buy",
-      "message": "BUY FET | $0.1795 | 0.000262 BNB",
-      "timestamp": 1782088375274
+      "id": 1782207125465,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782207125465
     },
     {
-      "id": 1782088371046.8728,
-      "type": "trade_blocked",
-      "message": "USDT swap failed, trying next token next cycle",
-      "timestamp": 1782088371046
+      "id": 1782207108305,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782207108305
     },
     {
-      "id": 1782088348114.4744,
-      "type": "signal_buy",
-      "message": "BUY USDT | $0.9989 | 0.000292 BNB",
-      "timestamp": 1782088348114
+      "id": 1782207094140,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782207094140
     },
     {
-      "id": 1782088335311.6736,
-      "type": "trade_blocked",
-      "message": "CAKE swap failed, trying next token next cycle",
-      "timestamp": 1782088335311
+      "id": 1782207079239,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782207079239
     },
     {
-      "id": 1782088331213.567,
-      "type": "signal_buy",
-      "message": "BUY CAKE | $1.3638 | 0.000324 BNB",
-      "timestamp": 1782088331213
+      "id": 1782207063585,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782207063585
     },
     {
-      "id": 1782088296424.5972,
-      "type": "trade_blocked",
-      "message": "ATOM swap failed, trying next token next cycle",
-      "timestamp": 1782088296424
+      "id": 1782207049142,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782207049142
     },
     {
-      "id": 1782088290432.3342,
-      "type": "signal_buy",
-      "message": "BUY ATOM | $1.7604 | 0.000324 BNB",
-      "timestamp": 1782088290432
+      "id": 1782207033181,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782207033181
     },
     {
-      "id": 1782088242427.1216,
-      "type": "trade_blocked",
-      "message": "INJ swap failed, trying next token next cycle",
-      "timestamp": 1782088242427
+      "id": 1782207018379,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782207018380
     },
     {
-      "id": 1782088238070.5366,
-      "type": "signal_buy",
-      "message": "BUY INJ | $4.8490 | 0.000324 BNB",
-      "timestamp": 1782088238070
+      "id": 1782207004045,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782207004045
     },
     {
-      "id": 1782088183240.7085,
-      "type": "trade_blocked",
-      "message": "AVAX swap failed, trying next token next cycle",
-      "timestamp": 1782088183240
+      "id": 1782206988271,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782206988271
     },
     {
-      "id": 1782088175590.151,
-      "type": "signal_buy",
-      "message": "BUY AVAX | $6.1322 | 0.000360 BNB",
-      "timestamp": 1782088175590
+      "id": 1782206973987,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782206973987
     },
     {
-      "id": 1782088127574.1514,
-      "type": "trade_blocked",
-      "message": "LINK swap failed, trying next token next cycle",
-      "timestamp": 1782088127574
+      "id": 1782206957806,
+      "type": "BNB too low: 0.0007",
+      "timestamp": 1782206957806
     },
     {
-      "id": 1782088124001.9502,
-      "type": "signal_buy",
-      "message": "BUY LINK | $7.8418 | 0.000360 BNB",
-      "timestamp": 1782088124001
-    },
-    {
-      "id": 1782088001798.5374,
-      "type": "system",
-      "message": "Trading STOPPED",
-      "timestamp": 1782088001798
-    },
-    {
-      "id": 1782087719104.1492,
-      "type": "trade_blocked",
-      "message": "LTC swap failed, trying next token next cycle",
-      "timestamp": 1782087719104
-    },
-    {
-      "id": 1782087714031.824,
-      "type": "signal_buy",
-      "message": "BUY LTC | $44.5247 | 0.000400 BNB",
-      "timestamp": 1782087714031
-    },
-    {
-      "id": 1782087678027.5366,
-      "type": "trade_blocked",
-      "message": "AAVE swap failed, trying next token next cycle",
-      "timestamp": 1782087678027
-    },
-    {
-      "id": 1782087673958.0613,
-      "type": "signal_buy",
-      "message": "BUY AAVE | $73.6238 | 0.000400 BNB",
-      "timestamp": 1782087673958
-    },
-    {
-      "id": 1782087630000.5178,
-      "type": "system",
-      "message": "Trading STARTED",
-      "timestamp": 1782087630000
-    },
-    {
-      "id": 1782087590997.5142,
-      "type": "trade_blocked",
-      "message": "ETH swap failed, trying next token next cycle",
-      "timestamp": 1782087590997
-    },
-    {
-      "id": 1782087570023.2754,
-      "type": "signal_buy",
-      "message": "BUY ETH | $1709.7859 | 0.000400 BNB",
-      "timestamp": 1782087570023
-    },
-    {
-      "id": 1782087439797.8079,
-      "type": "system",
-      "message": "Trading STOPPED",
-      "timestamp": 1782087439797
-    },
-    {
-      "id": 1782087332536.7341,
-      "type": "system",
-      "message": "Agent started - 18 BSC tokens ready",
-      "timestamp": 1782087332536
+      "id": 1782206951309,
+      "type": "Portfolio: $0.39",
+      "timestamp": 1782206951309
     }
   ]
 }

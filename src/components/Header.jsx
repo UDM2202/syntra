@@ -226,7 +226,7 @@ export default function Header({ isMobile = false }) {
                 color: totalPnL > 0 ? '#00D4AA' : '#FF6B6B',
                 fontWeight: 600
               }}>
-                ${totalPnL.toFixed(2)}
+                ${Number(totalPnL || 0).toFixed(2)}
               </span>
             </div>
           </div>
@@ -435,7 +435,7 @@ export default function Header({ isMobile = false }) {
                 color: totalPnL > 0 ? '#00D4AA' : '#FF6B6B',
                 fontWeight: 500 
               }}>
-                ${totalPnL.toFixed(2)}
+                ${Number(totalPnL || 0).toFixed(2)}
               </span>
             </div>
             <div style={{
