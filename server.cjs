@@ -189,6 +189,7 @@ try {
 } catch(e) { try { fs.unlinkSync(STATE_FILE); } catch(e2) {} }
 
 server.listen(PORT, () => {
+  setTimeout(startAgent, 3000);
   console.log('========================================');
   console.log('  SYNTA SERVER v4');
   console.log('  Port: ' + PORT);
@@ -199,5 +200,6 @@ server.listen(PORT, () => {
 
 process.on('SIGINT', () => { stopAgent(); process.exit(0); });
 process.on('SIGTERM', () => { stopAgent(); process.exit(0); });
+
 
 

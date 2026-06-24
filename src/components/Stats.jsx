@@ -66,7 +66,7 @@ const Stats = memo(function Stats({ isMobile = false }) {
         value: !hasLoadedOnce ? '...' : safeNumber(tradeData.totalTrades, 0),
         icon: Activity,
         gradient: 'linear-gradient(135deg, #6C3CE1, #8B5CF6)',
-        subtext: tradeData.wins + 'W / ' + tradeData.losses + 'L'
+        subtext: ''
       },
       {
         label: 'Win Rate',
