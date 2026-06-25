@@ -1,5 +1,5 @@
-// src/agent/momentumAgent.cjs
-// Syntra Agent v26 - FINAL CLEAN
+﻿// src/agent/momentumAgent.cjs
+// Syntra Agent v27 - CLEAN WITH SETTINGS
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -13,6 +13,7 @@ const provider = new ethers.providers.JsonRpcProvider(BSC_RPC);
 const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
 const STATE_FILE = path.join(__dirname, '..', '..', 'agent-state.json');
 const HISTORY_FILE = path.join(__dirname, '..', '..', 'trade-history.json');
+const SETTINGS_FILE = path.join(__dirname, '..', '..', 'agent-settings.json');
 const PANCAKE_ROUTER = '0x10ED43C718714eb63d5aA57B78B54704E256024E';
 const WBNB = '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c';
 const USDT = '0x55d398326f99059fF775485246999027B3197955';
@@ -21,10 +22,21 @@ const ROUTER_ABI = [
   'function getAmountsOut(uint amountIn, address[] path) view returns (uint[] amounts)'
 ];
 const router = new ethers.Contract(PANCAKE_ROUTER, ROUTER_ABI, wallet);
-
+// Read settings from frontend
+function loadSettings() {
+  try {
+    if (fs.existsSync(SETTINGS_FILE)) {
+      return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
+    }
+  } catch (e) {}
+  return {};
+}
+const userSettings = loadSettings();
+const TRADE_BNB = parseFloat(userSettings.maxTradeAmount) || 0.0017;
 const CYCLE_SECONDS = 15;
 const TP_PCT = parseFloat(userSettings.takeProfitPercent) || 0.15;
 const SL_PCT = parseFloat(userSettings.stopLossPercent) || 0.08;
+const MAX_TRADES = parseInt(userSettings.maxDailyTrades) || 50;
 function getBnbPrice() {
   try {
     var result = execSync('npx @trustwallet/cli price BNB --json', { encoding: 'utf8', timeout: 10000, env: { ...process.env } });
@@ -58,8 +70,6 @@ function loadHistory() {
 }
 function saveHistory(h) { fs.writeFileSync(HISTORY_FILE, JSON.stringify(h, null, 2)); }
 var history = loadHistory();
-// Don't reset - use loaded values
-if (history.totalTrades > 0) { tradeCount = history.totalTrades; }
 var agentState = {
   running: true, agent: { address: AGENT_ADDRESS, configured: true },
   market: { btc: 0 }, trades: history.trades, openPosition: null, currentDecision: null,
@@ -80,7 +90,7 @@ function saveState() {
   fs.writeFileSync(STATE_FILE, JSON.stringify(agentState, null, 2));
 }
 function addLog(type, message) {
-  agentState._logs.unshift({ id: Date.now() + Math.random(), type: message, timestamp: Date.now() });
+  agentState._logs.unshift({ id: Date.now() + Math.random(), type: type, message: message, timestamp: Date.now() });
   if (agentState._logs.length > 100) agentState._logs = agentState._logs.slice(0, 100);
   console.log('  [' + type + '] ' + message);
 }
@@ -111,7 +121,7 @@ async function cycle() {
           var result = await buyUSDT(pos.bnbSpent);
           if (result.success) {
             var profit = (pos.bnbSpent * TP_PCT) / 100;
-            history.wins++; history.totalProfit += profit; history.totalPnl += profit * 1000000;
+            history.wins++; history.totalProfit += profit; history.totalPnl += profit;
             history.trades.push({ symbol: pos.symbol, result: 'WIN', entryPrice: pos.entryPrice, exitPrice: bnbPrice, profit: profit.toFixed(6), closeTx: result.txHash, closeTime: Date.now() });
             agentState.openPosition = null;
             addLog('trade_approved', 'WIN +$' + profit.toFixed(4));
@@ -122,7 +132,7 @@ async function cycle() {
           var result = await buyUSDT(pos.bnbSpent);
           if (result.success) {
             var loss = (pos.bnbSpent * SL_PCT) / 100;
-            history.losses++; history.totalLoss += loss; history.totalPnl -= loss * 1000000;
+            history.losses++; history.totalLoss += loss; history.totalPnl -= loss;
             history.trades.push({ symbol: pos.symbol, result: 'LOSS', entryPrice: pos.entryPrice, exitPrice: bnbPrice, loss: loss.toFixed(6), closeTx: result.txHash, closeTime: Date.now() });
             agentState.openPosition = null;
             addLog('trade_blocked', 'LOSS -$' + loss.toFixed(4));
@@ -133,7 +143,8 @@ async function cycle() {
           var result = await buyUSDT(pos.bnbSpent);
           if (result.success) {
             var pnl = (pos.bnbSpent * change) / 100;
-            if (pnl >= 0) { history.wins++; history.totalProfit += pnl; } else { history.losses++; history.totalLoss += Math.abs(pnl); }
+            if (pnl >= 0) { history.wins++; history.totalProfit += pnl; }
+            else { history.losses++; history.totalLoss += Math.abs(pnl); }
             history.totalPnl += pnl * 1000000;
             history.trades.push({ symbol: pos.symbol, result: pnl >= 0 ? 'WIN' : 'LOSS', pnl: pnl.toFixed(6), closeTx: result.txHash, closeTime: Date.now() });
             agentState.openPosition = null;
@@ -145,9 +156,9 @@ async function cycle() {
       saveState();
       return;
     }
-    // Safety
+    // Safety checks
     if (drawdown >= 30) { addLog('trade_blocked', 'DRAWDOWN 30%'); saveState(); return; }
-    if (port.bnb < 0.004) { addLog('trade_blocked', 'BNB too low: ' + port.bnb.toFixed(4)); saveState(); return; }
+    if (port.bnb < 0.0025) { addLog('trade_blocked', 'BNB too low: ' + port.bnb.toFixed(4)); saveState(); return; }
     // Entry signal
     var shouldEnter = false;
     var reason = '';
@@ -181,8 +192,10 @@ async function cycle() {
   }
 }
 console.log('========================================');
-console.log('  SYNTA v26 - FINAL');
+console.log('  SYNTA v27 - CLEAN');
 console.log('  TP: +' + TP_PCT + '% | SL: -' + SL_PCT + '%');
+console.log('  Trade: ' + TRADE_BNB + ' BNB | Cycle: ' + CYCLE_SECONDS + 's');
+console.log('  Settings: ' + (userSettings.maxTradeAmount ? 'custom' : 'default'));
 console.log('========================================');
 setTimeout(async () => {
   var p = await getPortfolio();
@@ -195,6 +208,3 @@ setTimeout(async () => {
   setInterval(cycle, CYCLE_SECONDS * 1000);
 }, 3000);
 process.on('SIGINT', () => { saveHistory(history); saveState(); process.exit(0); });
-
-
-

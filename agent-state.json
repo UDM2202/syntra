@@ -171,106 +171,86 @@
       "result": "OPEN",
       "entryPrice": 569.6253796803564,
       "time": 1782311246900
+    },
+    {
+      "symbol": "BNB",
+      "result": "OPEN",
+      "entryPrice": 562.0341685671847,
+      "time": 1782389635572
+    },
+    {
+      "symbol": "BNB",
+      "result": "WIN",
+      "entryPrice": 562.0341685671847,
+      "exitPrice": 580,
+      "profit": "0.000003",
+      "closeTx": "0xe871b1ae5f7035dc35843505867c3100d4c6a37000ef998763dfbdcafd8bdf5a",
+      "closeTime": 1782389668996
     }
   ],
-  "openPosition": {
-    "symbol": "BNB",
-    "direction": "LONG",
-    "entryPrice": 569.6253796803564,
-    "entryTime": 1782311246900,
-    "bnbSpent": 0.00015,
-    "txHash": "HOLDING"
-  },
+  "openPosition": null,
   "currentDecision": {
     "decision": "BUY",
     "conviction": 70,
     "target": "BNB"
   },
   "stats": {
-    "totalTrades": 13,
-    "wins": 7,
+    "totalTrades": 14,
+    "wins": 8,
     "losses": 4,
-    "pnl": 0.1959716418422625,
-    "winRate": "53.8",
-    "totalProfit": 7.912080535807384e-7,
+    "pnl": 0.1959741918422625,
+    "winRate": "57.1",
+    "totalProfit": 0.0000033412080535807383,
     "totalLoss": 3.3127573475981436e-7
   },
   "topMomentum": [],
-  "bnbBalance": 0.006546344006583416,
-  "usdValue": 3.728963690268304,
-  "totalUsd": 3.728963690268304,
-  "drawdown": 6.189671140041518,
-  "lastUpdate": "2026-06-24T14:27:40.701Z",
+  "bnbBalance": 0.012040644006583416,
+  "usdValue": 6.767253343253565,
+  "totalUsd": 6.767253343253565,
+  "drawdown": 3.097557143588853,
+  "lastUpdate": "2026-06-25T12:14:28.997Z",
   "_logs": [
     {
-      "id": 1782311260217.148,
-      "type": "LONG | Entry: $569.63 | Now: $569.63 | 0.000%",
-      "timestamp": 1782311260217
+      "id": 1782389668996.7424,
+      "type": "trade_approved",
+      "message": "WIN +$0.0000",
+      "timestamp": 1782389668996
     },
     {
-      "id": 1782311246901.4595,
-      "type": "LONG BNB @ $569.63 | TP:+0.15% SL:-0.08%",
-      "timestamp": 1782311246901
+      "id": 1782389666590.7522,
+      "type": "position_update",
+      "message": "LONG | Entry: $562.03 | Now: $562.03 | 0.000%",
+      "timestamp": 1782389666590
     },
     {
-      "id": 1782311246900.813,
-      "type": "BUY BNB @ $569.63 | time entry",
-      "timestamp": 1782311246900
+      "id": 1782389657013.7544,
+      "type": "position_close",
+      "message": "TAKE PROFIT +3.20%",
+      "timestamp": 1782389657013
     },
     {
-      "id": 1782311231654.273,
-      "type": "No entry | BNB: $569.63 | Chg: 0.204%",
-      "timestamp": 1782311231654
+      "id": 1782389657013.081,
+      "type": "position_update",
+      "message": "LONG | Entry: $562.03 | Now: $580.00 | 3.197%",
+      "timestamp": 1782389657013
     },
     {
-      "id": 1782311215250.2427,
-      "type": "No entry | BNB: $568.46 | Chg: 0.000%",
-      "timestamp": 1782311215250
+      "id": 1782389635573.9685,
+      "type": "position_open",
+      "message": "LONG BNB @ $562.03 | TP:+0.15% SL:-0.08%",
+      "timestamp": 1782389635573
     },
     {
-      "id": 1782311199283.6,
-      "type": "No entry | BNB: $568.46 | Chg: 0.000%",
-      "timestamp": 1782311199283
+      "id": 1782389635572.9082,
+      "type": "signal_buy",
+      "message": "BUY BNB @ $562.03 | time entry",
+      "timestamp": 1782389635572
     },
     {
-      "id": 1782311187126.5793,
-      "type": "LOSS -$0.0000",
-      "timestamp": 1782311187126
-    },
-    {
-      "id": 1782311183253.3806,
-      "type": "STOP LOSS -1.99%",
-      "timestamp": 1782311183253
-    },
-    {
-      "id": 1782311183253.0273,
-      "type": "LONG | Entry: $580.00 | Now: $568.46 | -1.989%",
-      "timestamp": 1782311183253
-    },
-    {
-      "id": 1782311172740.179,
-      "type": "LONG | Entry: $580.00 | Now: $580.00 | 0.000%",
-      "timestamp": 1782311172740
-    },
-    {
-      "id": 1782311157825.4895,
-      "type": "LONG | Entry: $580.00 | Now: $580.00 | 0.000%",
-      "timestamp": 1782311157825
-    },
-    {
-      "id": 1782311143607.63,
-      "type": "LONG BNB @ $580.00 | TP:+0.15% SL:-0.08%",
-      "timestamp": 1782311143608
-    },
-    {
-      "id": 1782311143606.7625,
-      "type": "BUY BNB @ $580.00 | time entry",
-      "timestamp": 1782311143606
-    },
-    {
-      "id": 1782311131182.83,
-      "type": "Portfolio: $3.98",
-      "timestamp": 1782311131182
+      "id": 1782389628460.708,
+      "type": "system",
+      "message": "Portfolio: $6.77",
+      "timestamp": 1782389628460
     }
   ]
 }

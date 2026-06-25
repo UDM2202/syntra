@@ -163,15 +163,30 @@
       "result": "OPEN",
       "entryPrice": 569.6253796803564,
       "time": 1782311246900
+    },
+    {
+      "symbol": "BNB",
+      "result": "OPEN",
+      "entryPrice": 562.0341685671847,
+      "time": 1782389635572
+    },
+    {
+      "symbol": "BNB",
+      "result": "WIN",
+      "entryPrice": 562.0341685671847,
+      "exitPrice": 580,
+      "profit": "0.000003",
+      "closeTx": "0xe871b1ae5f7035dc35843505867c3100d4c6a37000ef998763dfbdcafd8bdf5a",
+      "closeTime": 1782389668996
     }
   ],
-  "totalTrades": 13,
-  "wins": 7,
+  "totalTrades": 14,
+  "wins": 8,
   "losses": 4,
-  "totalPnl": 0.1959716418422625,
-  "totalProfit": 7.912080535807384e-7,
+  "totalPnl": 0.1959741918422625,
+  "totalProfit": 0.0000033412080535807383,
   "totalLoss": 3.3127573475981436e-7,
-  "lastTradeTime": 1782311246900,
-  "peakCapital": 3.9750033238183815,
+  "lastTradeTime": 1782389635572,
+  "peakCapital": 6.983573523818381,
   "startCapital": 1.3631229638183813
 }
