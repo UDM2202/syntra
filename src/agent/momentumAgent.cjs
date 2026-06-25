@@ -21,7 +21,7 @@ const ROUTER_ABI = [
   'function getAmountsOut(uint amountIn, address[] path) view returns (uint[] amounts)'
 ];
 const router = new ethers.Contract(PANCAKE_ROUTER, ROUTER_ABI, wallet);
-const TRADE_BNB = 0.0035;
+
 const CYCLE_SECONDS = 15;
 const TP_PCT = parseFloat(userSettings.takeProfitPercent) || 0.15;
 const SL_PCT = parseFloat(userSettings.stopLossPercent) || 0.08;
@@ -195,5 +195,6 @@ setTimeout(async () => {
   setInterval(cycle, CYCLE_SECONDS * 1000);
 }, 3000);
 process.on('SIGINT', () => { saveHistory(history); saveState(); process.exit(0); });
+
 
 
